@@ -1,0 +1,78 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Product Reviews</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+    }
+    form {
+      margin-bottom: 20px;
+    }
+    .review {
+      border: 1px solid #ccc;
+      padding: 10px;
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Product Reviews</h1>
+
+  <form id="review-form">
+    <label for="product">Product:</label>
+    <input type="text" id="product" name="product" required><br><br>
+    <label for="rating">Rating (1-5):</label>
+    <input type="number" id="rating" name="rating" min="1" max="5" required><br><br>
+    <label for="comment">Comment:</label><br>
+    <textarea id="comment" name="comment" rows="4" required></textarea><br><br>
+    <button type="submit">Submit Review</button>
+  </form>
+
+  <h2>Reviews:</h2>
+  <div id="reviews"></div>
+
+  <script>
+    document.getElementById('review-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const product = document.getElementById('product').value;
+      const rating = document.getElementById('rating').value;
+      const comment = document.getElementById('comment').value;
+
+      const response = await fetch('/reviews', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ product, rating, comment }),
+      });
+
+      if (response.ok) {
+        loadReviews();
+      } else {
+        alert('Failed to submit review');
+      }
+    });
+
+    async function loadReviews() {
+      const response = await fetch('/reviews');
+      const reviews = await response.json();
+      const reviewsDiv = document.getElementById('reviews');
+      reviewsDiv.innerHTML = '';
+      reviews.forEach(review => {
+        const reviewDiv = document.createElement('div');
+        reviewDiv.classList.add('review');
+        reviewDiv.innerHTML = `<strong>${review.product}</strong><br>
+                               Rating: ${review.rating}<br>
+                               Comment: ${review.comment}`;
+        reviewsDiv.appendChild(reviewDiv);
+      });
+    }
+
+    loadReviews();
+  </script>
+</body>
+</html>
